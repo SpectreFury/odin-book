@@ -21,8 +21,16 @@ const Login = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data.email, data.password);
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    const response = await fetch("http://localhost:8080/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: data.email, password: data.password }),
+    });
+
+    console.log("Response: ", response)
   }
 
   return (
