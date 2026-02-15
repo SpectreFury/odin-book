@@ -1,0 +1,52 @@
+package migration
+
+import (
+	"context"
+	"fmt"
+	"os"
+
+	"github.com/jackc/pgx/v5"
+)
+
+// have a migration folder with cwith tables
+// picks all the tables one after another
+// has a single sql file inside which it parses
+// runs it using conn.Query(context.Background(), query)
+
+func loadFileNames(path string) []string {
+	dir, err := os.ReadDir(path)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var fileNames []string
+	for _, file := range dir {
+		fileNames = append(fileNames, file.Name())
+	}
+
+	return fileNames
+}
+
+func RunMigration(conn *pgx.Conn, path string) error {
+	sqlFiles := loadFileNames(path)
+
+	for _, sqlFile := range sqlFiles {
+		data, err := os.ReadFile(path + "/" + sqlFile)
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			return err
+		}
+
+		sqlQuery := string(data)
+
+		rows, err := conn.Query(context.Background(), sqlQuery)
+		if err != nil {
+			fmt.Println("ERROR: migration failed")
+			return err
+		}
+		defer rows.Close()
+	} 
+
+	fmt.Println("Migration completed")
+	return nil
+}

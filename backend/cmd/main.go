@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/SpectreFury/odin-book/backend/internal/env"
+	"github.com/SpectreFury/odin-book/backend/internal/migration"
+	"github.com/jackc/pgx/v5"
 )
 
 func main() {
@@ -17,13 +20,25 @@ func main() {
 	}
 
 	PORT := os.Getenv("PORT")
+	DATABASE_URL := os.Getenv("DATABASE_URL")
+
+	conn, err := pgx.Connect(context.Background(), DATABASE_URL)
+	if err != nil {
+		log.Fatal("ERROR: connecting to database")
+		return
+	}
+	defer conn.Close(context.Background())
+	fmt.Println("Connected to database")
+
+	migration.RunMigration(conn, "migrations")
+
+
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Working"))
 	})
-
 
 	fmt.Println("Listening on PORT:", PORT)
 	err = http.ListenAndServe(":"+PORT, mux)
