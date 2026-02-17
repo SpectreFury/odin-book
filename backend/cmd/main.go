@@ -10,7 +10,7 @@ import (
 	"github.com/SpectreFury/odin-book/backend/cmd/handler"
 	"github.com/SpectreFury/odin-book/backend/internal/env"
 	"github.com/SpectreFury/odin-book/backend/internal/migration"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
@@ -23,12 +23,12 @@ func main() {
 	PORT := os.Getenv("PORT")
 	DATABASE_URL := os.Getenv("DATABASE_URL")
 
-	conn, err := pgx.Connect(context.Background(), DATABASE_URL)
+	conn, err := pgxpool.New(context.Background(), DATABASE_URL)
 	if err != nil {
 		log.Fatal("ERROR: connecting to database")
 		return
 	}
-	defer conn.Close(context.Background())
+	defer conn.Close()
 	fmt.Println("Connected to database")
 
 	migration.RunMigration(conn, "migrations")

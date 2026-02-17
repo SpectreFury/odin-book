@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // have a migration folder with cwith tables
@@ -27,7 +27,7 @@ func loadFileNames(path string) []string {
 	return fileNames
 }
 
-func RunMigration(conn *pgx.Conn, path string) error {
+func RunMigration(conn *pgxpool.Pool, path string) error {
 	sqlFiles := loadFileNames(path)
 
 	for _, sqlFile := range sqlFiles {
