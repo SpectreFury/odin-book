@@ -1,3 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
-  first_name varchar(255) NOT NULL
-) 
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL
+)

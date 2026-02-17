@@ -41,7 +41,7 @@ func RunMigration(conn *pgx.Conn, path string) error {
 
 		rows, err := conn.Query(context.Background(), sqlQuery)
 		if err != nil {
-			fmt.Println("ERROR: migration failed")
+			fmt.Println("ERROR: migration failed", err)
 			return err
 		}
 		defer rows.Close()
