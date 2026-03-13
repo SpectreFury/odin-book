@@ -13,11 +13,9 @@ import (
 )
 
 func main() {
-	log := logger.Logger{}
-
 	err := env.Load()
 	if err != nil {
-		log.Error("Unable to load env")
+		logger.Error("Unable to load env")
 		return
 	}
 
@@ -26,11 +24,11 @@ func main() {
 
 	conn, err := pgxpool.New(context.Background(), DATABASE_URL)
 	if err != nil {
-		log.Error("ERROR: connecting to database")
+		logger.Error("ERROR: connecting to database")
 		return
 	}
 	defer conn.Close()
-	log.Log("Connected to database")
+	logger.Info("Connected to database")
 
 	migration.RunMigration(conn, "migrations")
 
@@ -41,10 +39,10 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signup", authHandler.SignupHandler)
 
-	log.Log("Listening on PORT 4000")
+	logger.Info("Listening on PORT 4000")
 	err = http.ListenAndServe(":"+PORT, mux)
 	if err != nil {
-		log.Error(err.Error())
+		logger.Error(err.Error())
 	}
 
 }

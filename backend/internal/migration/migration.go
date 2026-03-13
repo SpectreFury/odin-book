@@ -30,7 +30,6 @@ func loadFileNames(path string) []string {
 }
 
 func RunMigration(conn *pgxpool.Pool, path string) error {
-	logger := logger.Logger {}
 	sqlFiles := loadFileNames(path)
 
 	for _, sqlFile := range sqlFiles {
@@ -50,6 +49,6 @@ func RunMigration(conn *pgxpool.Pool, path string) error {
 		defer rows.Close()
 	} 
 
-	logger.Log("Migration completed")
+	logger.Info("Migration completed")
 	return nil
 }
