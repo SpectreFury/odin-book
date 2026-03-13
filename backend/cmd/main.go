@@ -34,7 +34,9 @@ func main() {
 
 	migration.RunMigration(conn, "migrations")
 
-	authHandler := handler.AuthHandler{}
+	authHandler := handler.AuthHandler{
+		DB: conn,
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signup", authHandler.SignupHandler)

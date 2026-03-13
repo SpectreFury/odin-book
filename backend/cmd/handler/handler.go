@@ -1,19 +1,31 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type AuthHandler struct{}
+type AuthHandler struct {
+	DB *pgxpool.Pool
+}
 
 type User struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
+}
+
+type Response struct {
+	Status bool `json:"status"`
+	Message string `json:"message"`
+	Body map[string]any `json:"body"`
 }
 
 func (h *AuthHandler) SignupHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +42,22 @@ func (h *AuthHandler) SignupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(user)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Success"))
+	rows , err := h.DB.Query(context.Background(), `INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4);`, user.FirstName, user.LastName, user.Email, user.Password)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(rows)
+
+	response := Response {
+		Status : true,
+		Message : "Successfully signed up",
+		Body : map[string]any {},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
