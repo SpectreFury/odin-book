@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/SpectreFury/odin-book/backend/internal/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -12,6 +13,7 @@ import (
 // picks all the tables one after another
 // has a single sql file inside which it parses
 // runs it using conn.Query(context.Background(), query)
+
 
 func loadFileNames(path string) []string {
 	dir, err := os.ReadDir(path)
@@ -28,12 +30,13 @@ func loadFileNames(path string) []string {
 }
 
 func RunMigration(conn *pgxpool.Pool, path string) error {
+	logger := logger.Logger {}
 	sqlFiles := loadFileNames(path)
 
 	for _, sqlFile := range sqlFiles {
 		data, err := os.ReadFile(path + "/" + sqlFile)
 		if err != nil {
-			fmt.Println("ERROR:", err)
+			logger.Error(err.Error())
 			return err
 		}
 
@@ -41,12 +44,12 @@ func RunMigration(conn *pgxpool.Pool, path string) error {
 
 		rows, err := conn.Query(context.Background(), sqlQuery)
 		if err != nil {
-			fmt.Println("ERROR: migration failed", err)
+
 			return err
 		}
 		defer rows.Close()
 	} 
 
-	fmt.Println("Migration completed")
+	logger.Log("Migration completed")
 	return nil
 }

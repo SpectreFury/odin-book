@@ -2,21 +2,22 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/SpectreFury/odin-book/backend/cmd/handler"
 	"github.com/SpectreFury/odin-book/backend/internal/env"
 	"github.com/SpectreFury/odin-book/backend/internal/migration"
+	"github.com/SpectreFury/odin-book/backend/internal/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
+	log := logger.Logger{}
+
 	err := env.Load()
 	if err != nil {
-		log.Fatal(err)
+		log.Error("Unable to load env")
 		return
 	}
 
@@ -25,11 +26,11 @@ func main() {
 
 	conn, err := pgxpool.New(context.Background(), DATABASE_URL)
 	if err != nil {
-		log.Fatal("ERROR: connecting to database")
+		log.Error("ERROR: connecting to database")
 		return
 	}
 	defer conn.Close()
-	fmt.Println("Connected to database")
+	log.Log("Connected to database")
 
 	migration.RunMigration(conn, "migrations")
 
@@ -38,10 +39,10 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signup", authHandler.SignupHandler)
 
-	fmt.Println("Listening on PORT:", PORT)
+	log.Log("Listening on PORT 4000")
 	err = http.ListenAndServe(":"+PORT, mux)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err.Error())
 	}
 
 }
