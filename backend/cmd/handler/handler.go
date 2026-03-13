@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/SpectreFury/odin-book/backend/internal/logger"
 )
 
 type AuthHandler struct {
@@ -44,7 +44,7 @@ func (h *AuthHandler) SignupHandler(w http.ResponseWriter, r *http.Request) {
 
 	rows , err := h.DB.Query(context.Background(), `INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4);`, user.FirstName, user.LastName, user.Email, user.Password)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	fmt.Println(rows)

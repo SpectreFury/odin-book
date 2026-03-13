@@ -1,30 +1,33 @@
 package logger
 
 import (
-	"fmt"
-	"time"
+	"log"
+	"os"
 )
 
-type Logger struct {}
-
-func (l* Logger) Print(level string, text string) {
-	now := time.Now()
-	timestamp := now.Format("2006-01-02 15:04:05")
-	fmt.Printf("[%s]: [%s] %s\n", level, timestamp, text)
+type logger struct {
+	infoLogger  *log.Logger
+	errorLogger *log.Logger
 }
 
-func (l* Logger) Log(text string) {
-	l.Print("INFO", text)
+var l *logger
+
+func init() {
+	l = &logger {
+		infoLogger : log.New(os.Stdout, "[INFO]: ", log.LstdFlags | log.Lmsgprefix),
+		errorLogger : log.New(os.Stdout, "[ERROR]: ", log.LstdFlags | log.Lmsgprefix),
+	}
 }
 
-func (l* Logger) Debug(text string) {
-	l.Print("DEBUG", text)
+
+func Info(v ...any) {
+	l.infoLogger.Println(v...)
 }
 
-func (l* Logger) Error(text string) {
-	l.Print("ERROR", text)
+func Error(v ...any) {
+	l.errorLogger.Println(v...)
 }
 
-func (l* Logger) Warning(text string) {
-	l.Print("WARNING", text)
+func Fatal(v ...any) {
+	l.errorLogger.Fatal(v...)
 }
