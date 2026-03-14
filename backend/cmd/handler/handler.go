@@ -7,9 +7,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/SpectreFury/odin-book/backend/internal/logger"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+type Response struct {
+	Status  bool           `json:"status"`
+	Message string         `json:"message"`
+	Body    map[string]any `json:"body"`
+}
 
 type AuthHandler struct {
 	DB *pgxpool.Pool
@@ -22,11 +28,6 @@ type User struct {
 	Password  string `json:"password"`
 }
 
-type Response struct {
-	Status bool `json:"status"`
-	Message string `json:"message"`
-	Body map[string]any `json:"body"`
-}
 
 func (h *AuthHandler) SignupHandler(w http.ResponseWriter, r *http.Request) {
 	var user User
@@ -42,17 +43,17 @@ func (h *AuthHandler) SignupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rows , err := h.DB.Query(context.Background(), `INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4);`, user.FirstName, user.LastName, user.Email, user.Password)
+	rows, err := h.DB.Query(context.Background(), `INSERT INTO users (first_name, last_name, email, password) VALUES ($1, $2, $3, $4);`, user.FirstName, user.LastName, user.Email, user.Password)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	fmt.Println(rows)
 
-	response := Response {
-		Status : true,
-		Message : "Successfully signed up",
-		Body : map[string]any {},
+	response := Response{
+		Status:  true,
+		Message: "Successfully signed up",
+		Body:    map[string]any{},
 	}
 
 	w.Header().Set("Content-Type", "application/json")
