@@ -38,6 +38,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /signup", authHandler.SignupHandler)
+	mux.HandleFunc("POST /login", authHandler.LoginHandler)
 
 	logger.Info("Listening on PORT 4000")
 	err = http.ListenAndServe(":"+PORT, mux)
